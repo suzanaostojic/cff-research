@@ -13,7 +13,7 @@ from scipy.stats import truncnorm
 # e_rec_eol_mean, e_rec_eol_std = 0.2, 0.4
 
 # using case study 1, concrete industrial floor with GWP100
-a_mean, a_std = 0.6, 0.3
+a_mean, a_std = 0.5, 0.3
 r1_mean, r1_std = 0, 0.6
 r2_mean, r2_std = 0.5, 0.5
 qs_in_mean, qs_in_std = 0.2, 0.4
