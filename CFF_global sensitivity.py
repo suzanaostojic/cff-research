@@ -1,108 +1,250 @@
 #%%
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
+from tabulate import tabulate
+
+#%%
+# Step 0: Load case study data
+n_sim = 10000
+
+case_studies = ["industrial_CCB_al", "industrial_CCB_st", "composite_CCB_al", "composite_CCB_st", "composite_CCB_cp",
+                "industrial_floor", "composite_floor"]
+
+gwp100_data = pd.read_excel(f"data/CFF Paper Data V10_Clean_SO.xlsx", sheet_name="python_impact", index_col=0)
+
+distribution_data = pd.read_excel(f"data/CFF Paper Data V10_Clean_SO.xlsx", sheet_name="python_distr")
+distribution_data = distribution_data.fillna(0)
+
 
 #%%
 # Step 1: Define the distributions for parameters
 # Assume parameters follow normal distributions with given means and standard deviations
-
-# ev_mean, ev_std = 0.2, 0.4
-# ev_star_mean, ev_star_std = 0.2, 0.4
-# e_rec_mean, e_rec_std = 0.2, 0.4
-# e_rec_eol_mean, e_rec_eol_std = 0.2, 0.4
-
-# using case study 1, concrete industrial floor with GWP100
-a_mean, a_std = 0.5, 0.3
-r1_mean, r1_std = 0, 0.6
-r2_mean, r2_std = 0.5, 0.5
-qs_in_mean, qs_in_std = 0.2, 0.4
-qs_out_mean, qs_out_std = 0.8, 0.1
-
-n_sim = 10000000
-
-#%%
-# Step 2: Define the CFF function
-
-##############################################################################
-# I think I am missing the disposal part? I only have the material CFF part
-##############################################################################
-
-def cff(a, r1, r2, qs_in, qs_out, ev=156, ev_star=156, e_rec=10.2, e_rec_eol=7.63):
-    # using the concrete industrial floor with GWP100
-    # now qs_in = qsin/qp, qs_out = qs_out/qp
-    return (1-r1)*ev + r1*(a*e_rec+(1-a)*ev*qs_in) + (1-a)*r2*(e_rec_eol-ev_star*qs_out)
-
-
-
-#%%
-# Step 3: Define random samples for each parameter
-
 
 def truncated_normal(mean, std, lower, upper, size):
     a, b = (lower - mean) / std, (upper - mean) / std  # Convert bounds to standard normal space
     return truncnorm.rvs(a, b, loc=mean, scale=std, size=size)
 
 
-# Function to generate constrained fr, fu samples
-def sample_constrained_norm(mean1, std1, mean2, std2, n):
-    fr = truncated_normal(mean1, std1, 0, 1, n)  # Ensure fr is between 0 and 1
-    fu = np.array(
-        [truncated_normal(mean2, std2, 0, 1 - fr[i], 1)[0] for i in range(n)])  # Adjust upper bound dynamically
+def setup_case_study_impacts(case_study):
 
-    return fr, fu
+    # loading gwp100 values for the selected case study
+    erec = gwp100_data[case_study]["erec"]
+    erec_eol = gwp100_data[case_study]["erec_eol"]
+    ed = gwp100_data[case_study]["ed"]
+    ev = gwp100_data[case_study]["ev"]
+    ev_star = gwp100_data[case_study]["ev_star"]
+
+    return [erec, erec_eol, ed, ev, ev_star]
 
 
-# Generate samples for constrained variables
+def setup_case_study_distributions(case_study):
 
-a_samples = np.random.uniform(0.4, 0.6, n_sim)
-r1_samples = np.random.uniform(0, 0.2, n_sim)
-r2_samples = np.random.uniform(0,1, n_sim)
-qs_in_samples = np.random.uniform(0,1, n_sim)
-qs_out_samples = np.random.uniform(0.7,0.9, n_sim)
+    # loading distribution data for the selected case study
+    mask = (distribution_data["case_study"] == case_study)
+    case_study_distributions = distribution_data[mask].to_numpy()
+    param_distributions = case_study_distributions[:, 2:]
+    samples = []
+    for p in range(len(param_distributions)):
+        if param_distributions[p][0] == "truncnorm":
+            sample = truncated_normal(param_distributions[p][1],
+                                      param_distributions[p][2],
+                                      param_distributions[p][3],
+                                      param_distributions[p][4],
+                                      n_sim)
+            samples.append(sample)
+        elif param_distributions[p][0] == "uniform":
+            sample = np.random.uniform(param_distributions[p][1],
+                                       param_distributions[p][2],
+                                       n_sim)
+            samples.append(sample)
+        elif param_distributions[p][0] == "triang":
+            sample = np.random.triangular(param_distributions[p][1],
+                                          param_distributions[p][2],
+                                          param_distributions[p][3],
+                                          n_sim)
+            samples.append(sample)
+        elif param_distributions[p][0] == "norm":
+            sample = np.random.normal(param_distributions[p][1],
+                                      param_distributions[p][2],
+                                      n_sim)
+            samples.append(sample)
+        elif param_distributions[p][0] == "fixed":
+            sample = np.full(n_sim, param_distributions[p][1])
+            samples.append(sample)
+        else:
+            print("Invalid distribution type")
 
-'''
-a_samples = truncated_normal(a_mean, a_std, 0, 1, n_sim)
-r1_samples = truncated_normal(r1_mean, r1_std, 0, 1, n_sim)
-r2_samples = truncated_normal(r2_mean, r2_std, 0, 1, n_sim)
-qs_in_samples = truncated_normal(qs_in_mean, qs_in_std, 0, 1, n_sim)
-qs_out_samples = truncated_normal(qs_out_mean, qs_out_std, 0, 1, n_sim)
-'''
+    return samples
+
 
 #%%
-# Verify designed samples
+# Step 2: Define the CFF function
 
-print(f"Max: {np.max(a_samples)}")
-print(f"Min: {np.min(a_samples)}")
-print(f"Mean: {np.mean(a_samples)}")
-print(f"Standard Deviation: {np.std(a_samples)}")
-print(f"Median: {np.median(a_samples)}")
-print(f"95th Percentile: {np.percentile(a_samples, 95)}")
-#%%
-# Step 4: Calculate CFF for each set of samples
+def cff(a, r1, r2, qs_in, qs_out, e_rec=0, e_rec_eol=7.63, ed=10.2, ev=156, ev_star=156):
+    # using the concrete industrial floor with GWP100
+    # now qs_in = qsin/qp, qs_out = qs_out/qp
+    return (1-r1)*ev + r1*(a*e_rec+(1-a)*ev*qs_in) + (1-a)*r2*(e_rec_eol-ev_star*qs_out) + (1 - r2)*ed
 
-cff_samples = cff(a_samples, r1_samples, r2_samples,
-                  qs_in_samples, qs_out_samples)
 
 #%%
-# Step 5: Analyze and visualize the results
-# Plot histogram of cff_samples
+# Define gsa functions
 
-plt.figure(figsize=(10, 6))
-plt.hist(cff_samples, bins=50, edgecolor='black', alpha=0.7)
-plt.title('Monte Carlo Simulation Results for CFF')
-plt.xlabel('Value of CFF')
-plt.ylabel('Frequency')
-plt.grid(True)
-plt.savefig("Monte-Carlo results.png")
+def plotting_parameter_distributions(case_study, show=False):
+
+    distributions = setup_case_study_distributions(case_study)
+
+    params = {
+        "a": distributions[0],
+        "r1": distributions[1],
+        "r2": distributions[2],
+        "qp": distributions[3],
+        "qs_in": distributions[4],
+        "qs_out": distributions[5]
+    }
+
+    # Create subplots
+    fig, axes = plt.subplots(2, 3, figsize=(15, 8))  # 2 rows, 3 columns
+
+    # Flatten axes for easy iteration
+    axes = axes.flatten()
+
+    # Plot histograms for each parameter
+    for i, (param_name, samples) in enumerate(params.items()):
+        axes[i].hist(samples, bins=50, edgecolor='black', alpha=0.7)
+        axes[i].set_title(f'Distribution of {param_name} ({n_sim} samples)')
+        axes[i].set_xlabel(param_name)
+        axes[i].set_ylabel('Frequency')
+        axes[i].grid(True)
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.savefig(f'plots/{case_study}/GSA_parameter_distributions.png')
+    if show:
+        plt.show()
+
+
+def gsa_cff(case_study, show_distribution=True, show_statistics=True, show_cff_histogram=True):
+
+    impacts = setup_case_study_impacts(cs)
+
+    distributions = setup_case_study_distributions(case_study)
+    a_samples = distributions[0]
+    r1_samples = distributions[1]
+    r2_samples = distributions[2]
+    qp_samples = distributions[3]
+    qs_in_samples = distributions[4]
+    qs_out_samples = distributions[5]
+
+    if show_distribution:
+        plotting_parameter_distributions(case_study, show=True)
+    else:
+        plotting_parameter_distributions(case_study, show=False)
+
+    cff_samples = cff(a_samples, r1_samples, r2_samples,
+                      qs_in_samples, qs_out_samples,
+                      e_rec=impacts[0],
+                      e_rec_eol=impacts[1],
+                      ed=impacts[2],
+                      ev=impacts[3],
+                      ev_star=impacts[4])
+
+    # Calculate and display statistics
+    if show_statistics:
+        print(f"Max of CFF: {np.max(cff_samples)}")
+        print(f"Min of CFF: {np.min(cff_samples)}")
+        print(f"Mean of CFF: {np.mean(cff_samples)}")
+        print(f"Standard Deviation of CFF: {np.std(cff_samples)}")
+        print(f"Median of CFF: {np.median(cff_samples)}")
+        print(f"95th Percentile of CFF: {np.percentile(cff_samples, 95)}")
+        print(f"Coefficient of Variation of CFF: {np.std(cff_samples) / np.mean(cff_samples)}")
+        print("\n")
+
+    # Plot histogram of cff_samples
+    if show_cff_histogram:
+        plt.figure(figsize=(10, 6))
+        plt.hist(cff_samples, bins=50, edgecolor='black', alpha=0.7)
+        plt.title('Global sensitivity analysis results for {case_study} ({n_sim} samples)')
+        plt.xlabel('CFF values')
+        plt.ylabel('Frequency')
+        plt.grid(True)
+        # Add a textbox with median and standard deviation
+        stats_text = (f"Mean: {np.mean(cff_samples):.2f}\nMedian: {np.median(cff_samples):.2f}"
+                      f"\nStd Dev: {np.std(cff_samples):.2f}\nCV: {np.std(cff_samples) / np.mean(cff_samples):.2f}")
+        plt.text(
+            0.05, 0.9,  # Position (normalized coordinates: top-right corner)
+            stats_text,
+            transform=plt.gca().transAxes,  # Use axes coordinates
+            fontsize=12,
+            verticalalignment='top',
+            bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5')
+        )
+        plt.savefig(f'plots/{case_study}/GSA_CFF.png')
+        plt.show()
+
+    return cff_samples
+
+
+#%%
+# Generating GSA results for all case studies
+
+cff_all = []
+
+for cs in case_studies:
+    print(f"Case Study: {cs}")
+    cff_cs = gsa_cff(cs, show_distribution=True, show_statistics=True, show_cff_histogram=True)
+    cff_all.append(cff_cs)
+
+#%%
+
+cff_case_studies = {
+    "industrial_CCB_al": cff_all[0],
+    "industrial_CCB_st": cff_all[1],
+    "composite_CCB_al": cff_all[2],
+    "composite_CCB_st": cff_all[3],
+    "composite_CCB_cp": cff_all[4],
+    "industrial_floor": cff_all[5],
+    "composite_floor": cff_all[6],
+    }
+
+# Create subplots (2 rows, 4 columns) - 8 spaces, 1 will be empty
+fig, axes = plt.subplots(4, 2, figsize=(18, 10))
+
+# Flatten axes for easy iteration
+axes = axes.flatten()
+
+# Plot histograms
+for i, (cs_name, samples) in enumerate(cff_case_studies.items()):
+    j=i
+
+    if i>4:
+        j = i+1
+    axes[j].hist(samples, bins=50, edgecolor='black', alpha=0.7)
+
+    # Add a textbox with median and standard deviation
+    stats_text = (f"Mean: {np.mean(samples):.2f}\nMedian: {np.median(samples):.2f}"
+                  f"\nStd Dev: {np.std(samples):.2f}\nCV: {np.std(samples) / np.mean(samples):.2f}")
+    axes[j].text(
+        0.95, 0.95,
+        stats_text,
+        transform=axes[j].transAxes,  # Use axes coordinates
+        fontsize=10,
+        verticalalignment='top',
+        horizontalalignment='right',
+        bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5')
+    )
+
+    axes[j].set_title(f'CFF GSA results for {cs_name} ({n_sim} samples)')
+    axes[j].set_xlabel(cs_name)
+    axes[j].set_ylabel('Frequency')
+    axes[j].grid(True)
+
+
+# Hide the extra subplot (8th one)
+axes[-3].set_visible(False)
+
+# Adjust layout
+plt.tight_layout()
+plt.savefig('plots/GSA_CFF_comparison.png')
 plt.show()
-
-#%%
-# Step 6: Calculate and display statistics
-
-print(f"Max of CFF: {np.max(cff_samples)}")
-print(f"Min of CFF: {np.min(cff_samples)}")
-print(f"Mean of CFF: {np.mean(cff_samples)}")
-print(f"Standard Deviation of CFF: {np.std(cff_samples)}")
-print(f"Median of CFF: {np.median(cff_samples)}")
-print(f"95th Percentile of CFF: {np.percentile(cff_samples, 95)}")
