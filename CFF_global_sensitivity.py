@@ -1,4 +1,5 @@
 #%%
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -118,9 +119,14 @@ def plotting_parameter_distributions(case_study, show=False):
         axes[i].set_ylabel('Frequency')
         axes[i].grid(True)
 
-    # Adjust layout
     plt.tight_layout()
-    plt.savefig(f'plots/{case_study}/GSA_parameter_distributions.png')
+
+    save_dir = f'plots/{case_study}'
+    os.makedirs(save_dir, exist_ok=True)
+    
+    save_path = os.path.join(save_dir, 'GSA_parameter_distributions.png')
+    plt.savefig(save_path)
+
     if show:
         plt.show()
 
