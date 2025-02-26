@@ -27,8 +27,38 @@ def d_dqs_out(a, r2, qp, ev_star):
 
 # Define case study parameters
 case_studies = [
-    {"name": "concrete industrial floor", "excel_column_name": "industrial_floor", "a": 0.5, "r1": 0, "r2": np.mean([0, 0.7]), "qp": 1, "qs_in": 0.52, "qs_out": np.mean([0.5, 1])},
-    {"name": "carbon concrete industrial floor", "excel_column_name": "composite_floor", "a": np.mean([0.5, 0.7]), "r1": 0.6, "r2": np.mean([0, 0.8]), "qp": 1, "qs_in": np.mean([0.3, 0.6]), "qs_out": np.mean([0.5, 1])},
+    {
+        "name": "concrete industrial floor", 
+        "excel_column_name": "industrial_floor", 
+        "a_min": 0.5, 
+        "a_max": 0.5,
+        "r1_min": 0,
+        "r1_max": 0, 
+        "r2_min": 0,
+        "r2_max": 0.7,
+        "qp_min": 1,
+        "qp_max": 1,
+        "qs_in_min": 0.52,
+        "qs_in_max": 0.52,
+        "qs_out_min": 0.5,
+        "qs_out_max": 1
+    },
+    {
+        "name": "carbon concrete industrial floor",
+        "excel_column_name": "composite_floor", 
+        "a_min": 0.5,
+        "a_max": 0.7,
+        "r1_min": 0.6,
+        "r1_max": 0.6,
+        "r2_min": 0,
+        "r2_max": 0.8,
+        "qp_min": 1,
+        "qp_max": 1,
+        "qs_in_min": 0.3,
+        "qs_in_max": 0.6,
+        "qs_out_min": 0.5,
+        "qs_out_max": 1
+    },
 ]
 
 # Load data from Excel
@@ -66,29 +96,49 @@ for case_study in case_studies:
         ev = impact_values.iloc[impact_index_map[f"ev_{impact_category}"]]
         ev_star = impact_values.iloc[impact_index_map[f"ev_star_{impact_category}"]]
 
-        cff_case_study = cff(case_study["a"], case_study["r1"], case_study["r2"], case_study["qp"], case_study["qs_in"], case_study["qs_out"], ev, ev_star, erec, erec_eol, ed)
-        S_a = d_da(case_study["r1"], case_study["r2"], case_study["qp"], case_study["qs_in"], case_study["qs_out"], ev, ev_star, erec, erec_eol)
-        S_r1 = d_dr1(case_study["a"], case_study["qp"], case_study["qs_in"], ev, erec)
-        S_r2 = d_dr2(case_study["a"], case_study["qp"], case_study["qs_out"], ev_star, erec_eol, ed)
-        S_qp = d_qp(case_study["a"], case_study["r1"], case_study["r2"], case_study["qp"], case_study["qs_in"], case_study["qs_out"], ev, ev_star)
-        S_qs_in = d_dqs_in(case_study["a"], case_study["r1"], case_study["qp"], ev)
-        S_qs_out = d_dqs_out(case_study["a"], case_study["r2"], case_study["qp"], ev_star)
-
+        cff_case_study_min = cff(case_study["a_min"], case_study["r1_min"], case_study["r2_min"], case_study["qp_min"], case_study["qs_in_min"], case_study["qs_out_min"], ev, ev_star, erec, erec_eol, ed)
+        cff_case_study_max = cff(case_study["a_max"], case_study["r1_max"], case_study["r2_max"], case_study["qp_max"], case_study["qs_in_max"], case_study["qs_out_max"], ev, ev_star, erec, erec_eol, ed)
+        
+        S_a_min = d_da(case_study["r1_min"], case_study["r2_min"], case_study["qp_min"], case_study["qs_in_min"], case_study["qs_out_min"], ev, ev_star, erec, erec_eol)
+        S_a_max = d_da(case_study["r1_max"], case_study["r2_max"], case_study["qp_max"], case_study["qs_in_max"], case_study["qs_out_max"], ev, ev_star, erec, erec_eol)
+        S_r1_min = d_dr1(case_study["a_min"], case_study["qp_min"], case_study["qs_in_min"], ev, erec)
+        S_r1_max = d_dr1(case_study["a_max"], case_study["qp_max"], case_study["qs_in_max"], ev, erec)
+        S_r2_min = d_dr2(case_study["a_min"], case_study["qp_min"], case_study["qs_out_min"], ev_star, erec_eol, ed)
+        S_r2_max = d_dr2(case_study["a_max"], case_study["qp_max"], case_study["qs_out_max"], ev_star, erec_eol, ed)
+        S_qp_min = d_qp(case_study["a_min"], case_study["r1_min"], case_study["r2_min"], case_study["qp_min"], case_study["qs_in_min"], case_study["qs_out_min"], ev, ev_star)
+        S_qp_max = d_qp(case_study["a_max"], case_study["r1_max"], case_study["r2_max"], case_study["qp_max"], case_study["qs_in_max"], case_study["qs_out_max"], ev, ev_star)
+        S_qs_in_min = d_dqs_in(case_study["a_min"], case_study["r1_min"], case_study["qp_min"], ev)
+        S_qs_in_max = d_dqs_in(case_study["a_max"], case_study["r1_max"], case_study["qp_max"], ev)
+        S_qs_out_min = d_dqs_out(case_study["a_min"], case_study["r2_min"], case_study["qp_min"], ev_star)
+        S_qs_out_max = d_dqs_out(case_study["a_max"], case_study["r2_max"], case_study["qp_max"], ev_star)
+        
         result = {
             "Case Study": case_study["name"],
             "Impact Category": impact_category,
-            "S_a": S_a,
-            "S_r1": S_r1,
-            "S_r2": S_r2,
-            "S_qp": S_qp,
-            "S_qs_in": S_qs_in,
-            "S_qs_out": S_qs_out,
-            "RS_a": S_a * case_study["a"] / cff_case_study,
-            "RS_r1": S_r1 * case_study["r1"] / cff_case_study,
-            "RS_r2": S_r2 * case_study["r2"] / cff_case_study,
-            "RS_qp": S_qp * case_study["qp"] / cff_case_study,
-            "RS_qs_in": S_qs_in * case_study["qs_in"] / cff_case_study,
-            "RS_qs_out": S_qs_out * case_study["qs_out"] / cff_case_study,
+            "S_a_min": S_a_min,
+            "S_a_max": S_a_max,
+            "S_r1_min": S_r1_min,
+            "S_r1_max": S_r1_max,
+            "S_r2_min": S_r2_min,
+            "S_r2_max": S_r2_max,
+            "S_qp_min": S_qp_min,
+            "S_qp_max": S_qp_max,
+            "S_qs_in_min": S_qs_in_min,
+            "S_qs_in_max": S_qs_in_max,
+            "S_qs_out_min": S_qs_out_min,
+            "S_qs_out_max": S_qs_out_max,
+            "RS_a_min": S_a_min * case_study["a_min"] / cff_case_study_min,
+            "RS_a_max": S_a_max * case_study["a_max"] / cff_case_study_max,
+            "RS_r1_min": S_r1_min * case_study["r1_min"] / cff_case_study_min,
+            "RS_r1_max": S_r1_max * case_study["r1_max"] / cff_case_study_max,
+            "RS_r2_min": S_r2_min * case_study["r2_min"] / cff_case_study_min,
+            "RS_r2_max": S_r2_max * case_study["r2_max"] / cff_case_study_max,
+            "RS_qp_min": S_qp_min * case_study["qp_min"] / cff_case_study_min,
+            "RS_qp_max": S_qp_max * case_study["qp_max"] / cff_case_study_max,
+            "RS_qs_in_min": S_qs_in_min * case_study["qs_in_min"] / cff_case_study_min,
+            "RS_qs_in_max": S_qs_in_max * case_study["qs_in_max"] / cff_case_study_max,
+            "RS_qs_out_min": S_qs_out_min * case_study["qs_out_min"] / cff_case_study_min,
+            "RS_qs_out_max": S_qs_out_max * case_study["qs_out_max"] / cff_case_study_max
         }
         derivatives_results.append(result)
 
