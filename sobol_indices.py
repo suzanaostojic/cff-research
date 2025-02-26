@@ -19,6 +19,7 @@ def setup_case_study_distributions(case_study):
     return distribution_data[mask]
 
 
+#Here add the impact category calculations
 def setup_case_study_impacts(case_study):
 
     gwp100_data = pd.read_excel(f"data/CFF Paper Data V10_Clean_SO.xlsx", sheet_name="python_impact", index_col=0)
