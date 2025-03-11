@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
-from tabulate import tabulate
 
 #%%
 # Step 0: Load case study data
@@ -14,7 +13,7 @@ case_studies = ["industrial_CCB_al", "industrial_CCB_st", "composite_CCB_al", "c
                 "industrial_floor", "composite_floor"]
 
 gwp100_data = pd.read_excel(f"data/CFF Paper Data V10_Clean_SO.xlsx", sheet_name="python_impact", index_col=0)
-
+print(gwp100_data)
 distribution_data = pd.read_excel(f"data/CFF Paper Data V10_Clean_SO.xlsx", sheet_name="python_distr")
 distribution_data = distribution_data.fillna(0)
 
@@ -31,11 +30,11 @@ def truncated_normal(mean, std, lower, upper, size):
 def setup_case_study_impacts(case_study):
 
     # loading gwp100 values for the selected case study
-    erec = gwp100_data[case_study]["erec"]
-    erec_eol = gwp100_data[case_study]["erec_eol"]
-    ed = gwp100_data[case_study]["ed"]
-    ev = gwp100_data[case_study]["ev"]
-    ev_star = gwp100_data[case_study]["ev_star"]
+    erec = gwp100_data[case_study]["erec_GWP"]
+    erec_eol = gwp100_data[case_study]["erec_eol_GWP"]
+    ed = gwp100_data[case_study]["ed_GWP"]
+    ev = gwp100_data[case_study]["ev_GWP"]
+    ev_star = gwp100_data[case_study]["ev_star_GWP"]
 
     return [erec, erec_eol, ed, ev, ev_star]
 
@@ -121,7 +120,7 @@ def plotting_parameter_distributions(case_study, show=False):
 
     plt.tight_layout()
 
-    save_dir = f'plots/{case_study}'
+    save_dir = f'plots/GSA/{case_study}'
     os.makedirs(save_dir, exist_ok=True)
     
     save_path = os.path.join(save_dir, 'GSA_parameter_distributions.png')
@@ -171,7 +170,7 @@ def gsa_cff(case_study, show_distribution=True, show_statistics=True, show_cff_h
     if show_cff_histogram:
         plt.figure(figsize=(10, 6))
         plt.hist(cff_samples, bins=50, edgecolor='black', alpha=0.7)
-        plt.title('Global sensitivity analysis results for {case_study} ({n_sim} samples)')
+        plt.title(f'Global sensitivity analysis results for {case_study} ({n_sim} samples)')
         plt.xlabel('CFF values')
         plt.ylabel('Frequency')
         plt.grid(True)
@@ -186,7 +185,7 @@ def gsa_cff(case_study, show_distribution=True, show_statistics=True, show_cff_h
             verticalalignment='top',
             bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5')
         )
-        plt.savefig(f'plots/{case_study}/GSA_CFF.png')
+        plt.savefig(f'plots/GSA/{case_study}/GSA_CFF.png')
         plt.show()
 
     return cff_samples
@@ -252,5 +251,40 @@ axes[-3].set_visible(False)
 
 # Adjust layout
 plt.tight_layout()
-plt.savefig('plots/GSA_CFF_comparison.png')
+plt.savefig('plots/GSA/GSA_CFF_comparison.png')
+plt.show()
+
+#%%
+
+floor1 = cff_case_studies["industrial_floor"]
+floor2 = cff_case_studies["composite_floor"]
+# Plot histograms
+plt.figure(figsize=(8, 6))
+plt.hist(floor1, bins=50, color='blue', alpha=0.5, label='industrial floor', density=True)
+plt.hist(floor2, bins=50, color='red', alpha=0.5, label='composite floor', density=True)
+
+# Labels and legend
+plt.xlabel("GWP100 (kgCO2,eq)")
+plt.ylabel("Density")
+plt.legend()
+plt.title("Climate change impact results for the floor case studies")
+plt.savefig('plots/GSA/floor_comparison.png')
+plt.show()
+
+CCB1 = (0.95*cff_case_studies["industrial_CCB_al"]
+        + 0.05*cff_case_studies["industrial_CCB_st"])
+CCB2 = (0.54*cff_case_studies["composite_CCB_al"]
+        + 0.045*cff_case_studies["composite_CCB_st"]
+        + 0.415*cff_case_studies["composite_CCB_cp"])
+# Plot histograms
+plt.figure(figsize=(8, 6))
+plt.hist(CCB1, bins=50, color='blue', alpha=0.5, label='industrial CCB', density=True)
+plt.hist(CCB2, bins=50, color='red', alpha=0.5, label='composite CCB', density=True)
+
+# Labels and legend
+plt.xlabel("GWP100 (kgCO2,eq)")
+plt.ylabel("Density")
+plt.legend()
+plt.title("Climate change impact results for the cross car beam case studies")
+plt.savefig('plots/GSA/CCB_comparison.png')
 plt.show()

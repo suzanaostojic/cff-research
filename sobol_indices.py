@@ -123,7 +123,7 @@ case_studies = ["industrial_CCB_al", "industrial_CCB_st", "composite_CCB_al", "c
                 "industrial_floor", "composite_floor"]
 
 # Define the output file name
-output_file = f'sobol/sobol_analysis_results.xlsx'
+output_file = f'plots/sobol/sobol_analysis_results.xlsx'
 
 # Open an ExcelWriter to save multiple sheets in one file
 with pd.ExcelWriter(output_file) as writer:
