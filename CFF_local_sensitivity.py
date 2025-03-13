@@ -48,9 +48,8 @@ case_studies = [
         "qs_out_min": 0.48,
         "qs_out_max": 1,
         "qs_out_mean": 0.74
-    }
+    },
     {
-        "name": "carbon concrete industrial floor",
         "excel_column_name": "composite_floor", 
         "a_min": 0.5,
         "a_max": 0.7,
@@ -161,16 +160,16 @@ for case_study in case_studies:
             "RS_r2_min": S_r2_min * case_study["r2_min"] / cff_case_study_min,
             "RS_r2_max": S_r2_max * case_study["r2_max"] / cff_case_study_max,
             "RS_r2_mean": S_r2_mean * case_study["r2_mean"] / cff_case_study_mean
-            "RS_qp_min": S_qp_min * case_study["qp_min"] / cff_case_study_min,
+            "RS_r2_mean": S_r2_mean * case_study["r2_mean"] / cff_case_study_mean,
             "RS_qp_max": S_qp_max * case_study["qp_max"] / cff_case_study_max,
             "RS_qp_mean": S_qp_mean * case_study["qp_mean"] / cff_case_study_mean
-            "RS_qs_in_min": S_qs_in_min * case_study["qs_in_min"] / cff_case_study_min,
+            "RS_qp_mean": S_qp_mean * case_study["qp_mean"] / cff_case_study_mean,
             "RS_qs_in_max": S_qs_in_max * case_study["qs_in_max"] / cff_case_study_max,
             "RS_qs_in_mean": S_qs_in_mean * case_study["qs_in_mean"] / cff_case_study_mean,
             "RS_qs_out_min": S_qs_out_min * case_study["qs_out_min"] / cff_case_study_min,
             "RS_qs_out_max": S_qs_out_max * case_study["qs_out_max"] / cff_case_study_max
-            "RS_qs_out_mean": S_qs_out_mean * case_study["qs_out_mean"] / cff_case
-        }
+            "RS_qs_out_max": S_qs_out_max * case_study["qs_out_max"] / cff_case_study_max,
+            "RS_qs_out_mean": S_qs_out_mean * case_study["qs_out_mean"] / cff_case_study_mean
         derivatives_results.append(result)
 
 # Save to CSV
