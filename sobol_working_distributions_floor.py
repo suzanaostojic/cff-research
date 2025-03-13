@@ -4,13 +4,12 @@
 #%%
 import numpy as np
 import pandas as pd
-import os
 import matplotlib.pyplot as plt
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 
 #%%
-n_sim = 2*2048
+n_sim = 2*2*2*2048
 
 def cff(a, r1, r2, qp, qs_in, qs_out, ev, ev_star, erec, erec_eol, ed):
     return (1 - r1) * ev + r1 * (a * erec + (1 - a) * ev * qs_in / qp) + (1 - a) * r2 * (
@@ -25,9 +24,9 @@ case_studies = [
             'names': ['a', 'r2', 'qs_in', 'qs_out'],
             'bounds': [
                 [0.45, 0.55, 0.5, 0.05],
-                [0.7, 0.999],  # Should check how Saltelli.sample defines the bounds for triang
-                [0.47, 0.59, 0.52, 0.05],
-                [0.5, 1, 0.85, 0.15]
+                [0., 0.7, 0.9999],
+                [0.73, 1, 0.85, 0.1],
+                [0.48, 1, 0.76, 0.1]
             ],
             'dists': ['truncnorm', 'triang', 'truncnorm', 'truncnorm']
         },
@@ -40,18 +39,18 @@ case_studies = [
         "name": "carbon concrete industrial floor",
         "case_study_key": "composite_floor",
         "problem": {
-            'num_vars': 5,
-            'names': ['a', 'r1','r2', 'qs_in', 'qs_out'],
+            'num_vars': 4,
+            'names': ['a', 'r2', 'qs_in', 'qs_out'],
             'bounds': [
-                [0.5, 0.7, 0.6, 0.1],
-                [0, 1, 0.6, 0.2],
-                [0.8, 0.999],
-                [0.55, 0.8, 0.65, 0.1],
-                [0.5, 0.82, 0.65, 0.1]
+                [0.5, 0.7],
+                [0, 0.97, 0.9999],
+                [0.73, 0.9, 0.85, 0.05],
+                [0.23, 0.81, 0.67, 0.1]
             ],
-            'dists': ['truncnorm', 'truncnorm', 'triang', 'truncnorm', 'truncnorm']
+            'dists': ['unif', 'triang', 'truncnorm', 'truncnorm']
         },
         "constants": {
+            "r1": 0.6,
             "qp": 1
         }
     },
@@ -85,7 +84,7 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - {case_study_key}")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/Parameter Distributions - {case_study_key}.png')
+    plt.savefig(f'plots/sobol/{case_study_key}_Parameter distributions.png')
 
     impact_values = impact_data[case_study_key]
     constants = case_study.get("constants", {})
@@ -148,11 +147,11 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/distributed_{case_study_key}_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/{case_study_key}_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/sobol_sensitivity_analysis_floor.xlsx') as writer:
+with pd.ExcelWriter('results/Sobol_floor.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')

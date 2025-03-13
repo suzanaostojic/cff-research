@@ -9,7 +9,7 @@ from SALib.sample import saltelli
 from SALib.analyze import sobol
 
 #%%
-n_sim = 2*2048
+n_sim = 2*2*2*2048
 
 
 def cff(a, r1, r2, qp, qs_in, qs_out, ev, ev_star, erec, erec_eol, ed):
@@ -27,20 +27,20 @@ case_studies = [
                       'r2_st', 'qs_in_st', 'qs_out_st',
                       'a_cp', 'r2_cp', 'qs_in_cp', 'qs_out_cp'],
             'bounds': [
-                [0.76, 0.999],  # Should think of how to define it without getting an error when not starting at 0
-                [0.8, 1, 0.9, 0.05],
-                [0.8, 1, 0.9, 0.05],
-                [0.81, 0.999],
-                [0.9, 0.5],
-                [0.9, 0.5],
-                [0.5, 0.8, 0.65, 0.1],
-                [0.13, 0.77],
-                [0.36, 0.9, 0.7, 0.2],
-                [0.29, 0.8, 0.6, 0.2]
+                [0.76, 0.98, 0.92, 0.03],  # Should think of how to define it without getting an error when not starting at 0
+                [0.8, 1, 0.9999],
+                [0.42, 1, 0.78, 0.15],
+                [0.81, 0.98, 0.9, 0.07],
+                [0.5, 1, 0.8, 0.13],
+                [0.51, 1, 0.82, 0.12],
+                [0.5, 0.8],
+                [0, 0.8, 0.4, 0.176],
+                [0.36, 0.86, 0.58, 0.12],
+                [0.29, 0.69, 0.45, 0.12]
             ],
-            'dists': ['triang', 'truncnorm', 'truncnorm',
-                      'triang', 'triang', 'triang',
-                      'truncnorm', 'triang', 'truncnorm', 'truncnorm']
+            'dists': ['truncnorm', 'triang', 'truncnorm',
+                      'truncnorm', 'truncnorm', 'truncnorm',
+                      'unif', 'truncnorm', 'truncnorm', 'truncnorm']
         },
         "constants": {
             "a_al": 0.2,
@@ -85,7 +85,7 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - composite CCB")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/Composite CCB_Parameter distributions.png')
+    plt.savefig(f'plots/sobol/composite_CCB_Parameter distributions.png')
 
     impact_values_al = impact_data[case_study_key_list[0]]
     impact_values_st = impact_data[case_study_key_list[1]]
@@ -190,11 +190,11 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/Composite CCB_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/composite_CCB_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/sobol_sensitivity_analysis_composite CCB.xlsx') as writer:
+with pd.ExcelWriter('results/Sobol_composite CCB.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')

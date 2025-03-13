@@ -4,13 +4,12 @@
 #%%
 import numpy as np
 import pandas as pd
-import os
 import matplotlib.pyplot as plt
 from SALib.sample import saltelli
 from SALib.analyze import sobol
 
 #%%
-n_sim = 2*2048
+n_sim = 2*2*2*2048
 
 
 def cff(a, r1, r2, qp, qs_in, qs_out, ev, ev_star, erec, erec_eol, ed):
@@ -26,14 +25,14 @@ case_studies = [
             'num_vars': 6,
             'names': ['r2_al', 'qs_in_al', 'qs_out_al', 'r2_st', 'qs_in_st', 'qs_out_st'],
             'bounds': [
-                [0.76, 0.999],  # Should think of how to define it without getting an error when not starting at 0
-                [0.995, 1, 0.997, 0.002],
-                [0.52, 1, 0.9, 0.1],
-                [0.81, 0.999],
-                [0.9, 1, 0.95, 0.01],
-                [0.9, 1, 0.95, 0.01]
+                [0.76, 0.98, 0.92, 0.03],
+                [0.8, 1, 0.9999],
+                [0.42, 1, 0.78, 0.15],
+                [0.81, 0.98, 0.9, 0.07],
+                [0.5, 1., 0.8, 0.13],
+                [0.51, 1., 0.82, 0.12]
             ],
-            'dists': ['triang', 'truncnorm', 'truncnorm', 'triang', 'truncnorm', 'truncnorm']
+            'dists': ['truncnorm', 'triang', 'truncnorm', 'truncnorm', 'truncnorm', 'truncnorm']
         },
         "constants": {
             "a_al": 0.2,
@@ -76,7 +75,7 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - industrial CCB")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/Industrial CCB_Parameter distributions.png')
+    plt.savefig(f'plots/sobol/industrial_CCB_Parameter distributions.png')
 
     impact_values_al = impact_data[case_study_key_list[0]]
     impact_values_st = impact_data[case_study_key_list[1]]
@@ -160,11 +159,11 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/Industrial CCB_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/industrial_CCB_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/sobol_sensitivity_analysis_industrial CCB.xlsx') as writer:
+with pd.ExcelWriter('results/Sobol_industrial CCB.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')
