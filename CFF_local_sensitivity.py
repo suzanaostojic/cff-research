@@ -175,6 +175,9 @@ for case_study in case_studies:
 
 # Save to CSV
 derivatives_df = pd.DataFrame(derivatives_results)
-derivatives_df.to_csv("derivatives_results.csv", index=False)
+
+# Write results to an Excel file
+with pd.ExcelWriter('results/local_sensitivity.xlsx') as writer:
+    derivatives_df.to_excel(writer, index=False, sheet_name='CFF derivatives')
 
 print("Derivative results saved to 'derivatives_results.csv'")
