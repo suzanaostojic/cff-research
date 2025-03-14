@@ -5,11 +5,11 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from SALib.sample import saltelli
-from SALib.analyze import sobol
+from SALib.sample import sobol
+from SALib.analyze import sobol as sobol_analyze
 
 #%%
-n_sim = 2*2*2*2048
+n_sim = 16384
 
 
 def cff(a, r1, r2, qp, qs_in, qs_out, ev, ev_star, erec, erec_eol, ed):
@@ -70,7 +70,8 @@ for case_study in case_studies:
             raise ValueError(f"Column '{case_study_key}' not found in data.")
 
     problem = case_study["problem"]
-    param_values = saltelli.sample(problem, n_sim)
+    param_values = sobol.sample(problem, n_sim)
+    print('param_values is shape: ', np.shape(param_values))
 
     # Plot histograms for each parameter
     num_vars = problem["num_vars"]
@@ -164,7 +165,9 @@ for case_study in case_studies:
         if None in Y:
             raise ValueError("One or more required parameters are missing values.")
 
-        Si = sobol.analyze(problem, Y)
+        print("Vector Y has a shape:", np.shape(Y))
+
+        Si = sobol_analyze.analyze(problem, Y)
         #  print(sum(Si['S1']))  # Test for checking that first order indices sum = 1
 
         # Collect results
