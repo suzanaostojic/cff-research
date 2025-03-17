@@ -120,12 +120,6 @@ def plotting_parameter_distributions(case_study, show=False):
 
     plt.tight_layout()
 
-    save_dir = f'plots/GSA/{case_study}'
-    os.makedirs(save_dir, exist_ok=True)
-
-    save_path = os.path.join(save_dir, 'GSA_parameter_distributions.png')
-    plt.savefig(save_path)
-
     if show:
         plt.show()
 
@@ -184,7 +178,6 @@ def gsa_cff(case_study, show_distribution=True, show_statistics=True, show_cff_h
             verticalalignment='top',
             bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.5')
         )
-        plt.savefig(f'plots/GSA/{case_study}/GSA_CFF.png')
         plt.show()
 
     return cff_samples, [a_samples, r1_samples, r2_samples, qp_samples, qs_in_samples, qs_out_samples]

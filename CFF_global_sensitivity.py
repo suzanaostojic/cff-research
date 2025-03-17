@@ -251,7 +251,7 @@ axes[-3].set_visible(False)
 
 # Adjust layout
 plt.tight_layout()
-plt.savefig('plots/GSA/GSA_CFF_comparison.png')
+plt.savefig('plots/GSA/comparison/all_case_studies_comparison.png')
 plt.show()
 
 #%%
@@ -268,7 +268,7 @@ plt.xlabel("GWP100 (kgCO2,eq)")
 plt.ylabel("Density")
 plt.legend()
 plt.title("Climate change impact results for the floor case studies")
-plt.savefig('plots/GSA/floor_comparison.png')
+plt.savefig('plots/GSA/comparison/floor_comparison.png')
 plt.show()
 
 CCB1 = (0.95*cff_case_studies["industrial_CCB_al"]
@@ -286,5 +286,5 @@ plt.xlabel("GWP100 (kgCO2,eq)")
 plt.ylabel("Density")
 plt.legend()
 plt.title("Climate change impact results for the cross car beam case studies")
-plt.savefig('plots/GSA/CCB_comparison.png')
+plt.savefig('plots/GSA/comparison/CCB_comparison.png')
 plt.show()

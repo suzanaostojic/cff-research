@@ -1,6 +1,3 @@
-#######################################################################################################################
-# Same code as sobol_working.py, but trying to integrate specific distributions and correcting problem settings
-#######################################################################################################################
 #%%
 import numpy as np
 import pandas as pd
@@ -148,7 +145,7 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/{case_study_key}_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/{case_study_key}/{case_study_key}_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
