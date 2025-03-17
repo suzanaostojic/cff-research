@@ -268,6 +268,27 @@ plt.xlabel("GWP100 (kgCO2,eq)")
 plt.ylabel("Density")
 plt.legend()
 plt.title("Climate change impact results for the floor case studies")
+# Add a textbox with median and standard deviation
+stats_ind_floor = (r"GWP$_{100, indus}$ = "+f"{np.mean(floor1):.2f} +/- {np.std(floor1):.2f} kgCO2,eq\n"r"CV$_{indus}$ = "+f"{np.std(floor1) / np.mean(floor1):.3f}")
+stats_comp_floor = (r"GWP$_{100, indus}$ = "+f"{np.mean(floor2):.2f} +/- {np.std(floor2):.2f} kgCO2,eq\n"r"CV$_{indus}$ = "+f"{np.std(floor2) / np.mean(floor2):.3f}")
+
+plt.text(
+    0.3, 0.8,  # Position (normalized coordinates: top-right corner)
+    stats_ind_floor,
+    transform=plt.gca().transAxes,  # Use axes coordinates
+    fontsize=12,
+    verticalalignment='center',
+    bbox=dict(facecolor='white', edgecolor='blue', boxstyle='round,pad=0.5')
+)
+
+plt.text(
+    0.45, 0.6,  # Position (normalized coordinates: top-right corner)
+    stats_comp_floor,
+    transform=plt.gca().transAxes,  # Use axes coordinates
+    fontsize=12,
+    verticalalignment='center',
+    bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.5')
+)
 plt.savefig('plots/GSA/comparison/floor_comparison.png')
 plt.show()
 
@@ -286,5 +307,26 @@ plt.xlabel("GWP100 (kgCO2,eq)")
 plt.ylabel("Density")
 plt.legend()
 plt.title("Climate change impact results for the cross car beam case studies")
+# Add a textbox with median and standard deviation
+stats_ind_CCB = (r"GWP$_{100, indus}$ = "+f"{np.mean(CCB1):.2f} +/- {np.std(CCB1):.2f} kgCO2,eq\n"r"CV$_{indus}$ = "+f"{np.std(CCB1) / np.mean(CCB1):.3f}")
+stats_comp_CCB = (r"GWP$_{100, comp}$ = "+f"{np.mean(CCB2):.2f} +/- {np.std(CCB2):.2f} kgCO2,eq\n"r"CV$_{comp}$ = "+f"{np.std(CCB2) / np.mean(CCB2):.3f}")
+
+plt.text(
+    0.45, 0.4,  # Position (normalized coordinates: top-right corner)
+    stats_ind_CCB,
+    transform=plt.gca().transAxes,  # Use axes coordinates
+    fontsize=12,
+    verticalalignment='center',
+    bbox=dict(facecolor='white', edgecolor='blue', boxstyle='round,pad=0.5')
+)
+
+plt.text(
+    0.25, 0.7,  # Position (normalized coordinates: top-right corner)
+    stats_comp_CCB,
+    transform=plt.gca().transAxes,  # Use axes coordinates
+    fontsize=12,
+    verticalalignment='center',
+    bbox=dict(facecolor='white', edgecolor='red', boxstyle='round,pad=0.5')
+)
 plt.savefig('plots/GSA/comparison/CCB_comparison.png')
 plt.show()
