@@ -19,25 +19,30 @@ case_studies = [
         "name": "industrial cross car beam",
         "case_study_key": ["industrial_CCB_al", "industrial_CCB_st"],
         "problem": {
-            'num_vars': 6,
-            'names': ['r2_al', 'qs_in_al', 'qs_out_al', 'r2_st', 'qs_in_st', 'qs_out_st'],
+            'num_vars': 10,
+            'names': ['a_al', 'r2_al', 'qp_al', 'qs_in_al', 'qs_out_al',
+                      'a_st', 'r2_st', 'qp_st', 'qs_in_st', 'qs_out_st'],
             'bounds': [
+                [0.15, 0.25],
                 [0.76, 0.98, 0.92, 0.03],
+                [0.95, 1],
                 [0.8, 1, 0.9999],
                 [0.42, 1, 0.78, 0.15],
+                [0.15, 0.25],
                 [0.81, 0.98, 0.9, 0.07],
+                [0.95, 1],
                 [0.5, 1., 0.8, 0.13],
                 [0.51, 1., 0.82, 0.12]
             ],
-            'dists': ['truncnorm', 'triang', 'truncnorm', 'truncnorm', 'truncnorm', 'truncnorm']
+            'dists': ['unif', 'truncnorm', 'unif','triang', 'truncnorm', 'unif','truncnorm', 'unif','truncnorm', 'truncnorm']
         },
         "constants": {
-            "a_al": 0.2,
+            #"a_al": 0.2,
             "r1_al": 0,
-            "qp_al": 1,
-            "a_st": 0.2,
+            #"qp_al": 1,
+            #"a_st": 0.2,
             "r1_st": 0,
-            "qp_st": 1
+            #"qp_st": 1
         }
     },
 ]
@@ -73,7 +78,8 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - industrial CCB")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/industrial_CCB_Parameter distributions.png')
+    #plt.savefig(f'plots/sobol/industrial_CCB/industrial_CCB_Parameter distributions.png')
+    plt.savefig(f'plots/sobol/industrial_CCB/varyall_industrial_CCB_Parameter distributions.png')
 
     impact_values_al = impact_data[case_study_key_list[0]]
     impact_values_st = impact_data[case_study_key_list[1]]
@@ -158,11 +164,12 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/industrial_CCB/industrial_CCB_Sobol_{impact_category}.png')
+        #plt.savefig(f'plots/sobol/industrial_CCB/industrial_CCB_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/industrial_CCB/varyall_industrial_CCB_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/Sobol_industrial CCB.xlsx') as writer:
+with pd.ExcelWriter('results/varyall_Sobol_industrial CCB.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')

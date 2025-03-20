@@ -16,38 +16,41 @@ case_studies = [
         "name": "concrete industrial floor",
         "case_study_key": "industrial_floor",
         "problem": {
-            'num_vars': 4,
-            'names': ['a', 'r2', 'qs_in', 'qs_out'],
+            'num_vars': 5,
+            'names': ['a', 'r2', 'qp', 'qs_in', 'qs_out'],
             'bounds': [
                 [0.45, 0.55, 0.5, 0.05],
                 [0., 0.7, 0.9999],
+                [0.95, 1],
                 [0.73, 1, 0.85, 0.1],
                 [0.48, 1, 0.76, 0.1]
             ],
-            'dists': ['truncnorm', 'triang', 'truncnorm', 'truncnorm']
+            'dists': ['truncnorm', 'triang', 'unif', 'truncnorm', 'truncnorm']
         },
         "constants": {
             "r1": 0,
-            "qp": 1
+            #"qp": 1
         }
     },
     {
         "name": "carbon concrete industrial floor",
         "case_study_key": "composite_floor",
         "problem": {
-            'num_vars': 4,
-            'names': ['a', 'r2', 'qs_in', 'qs_out'],
+            'num_vars': 6,
+            'names': ['a','r1', 'r2', 'qp', 'qs_in', 'qs_out'],
             'bounds': [
                 [0.5, 0.7],
+                [0.55, 0.75],
                 [0, 0.97, 0.9999],
+                [0.95, 1],
                 [0.73, 0.9, 0.85, 0.05],
                 [0.23, 0.81, 0.67, 0.1]
             ],
-            'dists': ['unif', 'triang', 'truncnorm', 'truncnorm']
+            'dists': ['unif', 'unif','triang', 'unif', 'truncnorm', 'truncnorm']
         },
         "constants": {
-            "r1": 0.6,
-            "qp": 1
+            #"r1": 0.6,
+            #"qp": 1
         }
     },
 ]
@@ -80,7 +83,8 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - {case_study_key}")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/{case_study_key}_Parameter distributions.png')
+    #plt.savefig(f'plots/sobol/{case_study_key}/{case_study_key}_Parameter distributions.png')
+    plt.savefig(f'plots/sobol/{case_study_key}/varyall_{case_study_key}_Parameter distributions.png')
 
     impact_values = impact_data[case_study_key]
     constants = case_study.get("constants", {})
@@ -145,11 +149,12 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/{case_study_key}/{case_study_key}_Sobol_{impact_category}.png')
+        #plt.savefig(f'plots/sobol/{case_study_key}/{case_study_key}_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/{case_study_key}/varyall_{case_study_key}_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/Sobol_floor.xlsx') as writer:
+with pd.ExcelWriter('results/varyall_Sobol_floor.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')

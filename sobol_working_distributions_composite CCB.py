@@ -19,35 +19,40 @@ case_studies = [
         "name": "composite cross car beam",
         "case_study_key": ["composite_CCB_al", "composite_CCB_st", "composite_CCB_cp"],
         "problem": {
-            'num_vars': 10,
-            'names': ['r2_al', 'qs_in_al', 'qs_out_al',
-                      'r2_st', 'qs_in_st', 'qs_out_st',
-                      'a_cp', 'r2_cp', 'qs_in_cp', 'qs_out_cp'],
+            'num_vars': 15,
+            'names': ['a_al', 'r2_al', 'qp_al', 'qs_in_al', 'qs_out_al',
+                      'a_st', 'r2_st', 'qp_st', 'qs_in_st', 'qs_out_st',
+                      'a_cp', 'r2_cp', 'qp_cp', 'qs_in_cp', 'qs_out_cp'],
             'bounds': [
-                [0.76, 0.98, 0.92, 0.03],  # Should think of how to define it without getting an error when not starting at 0
+                [0.15, 0.25],
+                [0.76, 0.98, 0.92, 0.03],
+                [0.95, 1],
                 [0.8, 1, 0.9999],
                 [0.42, 1, 0.78, 0.15],
+                [0.15, 0.25],
                 [0.81, 0.98, 0.9, 0.07],
+                [0.95, 1],
                 [0.5, 1, 0.8, 0.13],
                 [0.51, 1, 0.82, 0.12],
                 [0.5, 0.8],
                 [0, 0.8, 0.4, 0.176],
+                [0.95, 1],
                 [0.36, 0.86, 0.58, 0.12],
                 [0.29, 0.69, 0.45, 0.12]
             ],
-            'dists': ['truncnorm', 'triang', 'truncnorm',
-                      'truncnorm', 'truncnorm', 'truncnorm',
-                      'unif', 'truncnorm', 'truncnorm', 'truncnorm']
+            'dists': ['unif', 'truncnorm', 'unif', 'triang', 'truncnorm',
+                      'unif', 'truncnorm', 'unif', 'truncnorm', 'truncnorm',
+                      'unif', 'truncnorm', 'unif', 'truncnorm', 'truncnorm']
         },
         "constants": {
-            "a_al": 0.2,
+            #"a_al": 0.2,
             "r1_al": 0,
-            "qp_al": 1,
-            "a_st": 0.2,
+            #"qp_al": 1,
+            #"a_st": 0.2,
             "r1_st": 0,
-            "qp_st": 1,
+            #"qp_st": 1,
             "r1_cp": 0,
-            "qp_cp": 1
+            #"qp_cp": 1
         }
     },
 ]
@@ -83,7 +88,8 @@ for case_study in case_studies:
 
     plt.suptitle(f"Parameter Distributions - composite CCB")
     plt.tight_layout()
-    plt.savefig(f'plots/sobol/composite_CCB_Parameter distributions.png')
+    #plt.savefig(f'plots/sobol/composite_CCB_Parameter distributions.png')
+    plt.savefig(f'plots/sobol/composite_CCB/varyall_composite_CCB_Parameter distributions.png')
 
     impact_values_al = impact_data[case_study_key_list[0]]
     impact_values_st = impact_data[case_study_key_list[1]]
@@ -190,11 +196,12 @@ for case_study in case_studies:
         plt.legend()
         plt.grid(True)
 
-        plt.savefig(f'plots/sobol/composite_CCB/composite_CCB_Sobol_{impact_category}.png')
+        #plt.savefig(f'plots/sobol/composite_CCB/composite_CCB_Sobol_{impact_category}.png')
+        plt.savefig(f'plots/sobol/composite_CCB/varyall_composite_CCB_Sobol_{impact_category}.png')
 
 # Convert results to a DataFrame
 results_df = pd.DataFrame(results)
 
 # Write results to an Excel file
-with pd.ExcelWriter('results/Sobol_composite CCB.xlsx') as writer:
+with pd.ExcelWriter('results/varyall_Sobol_composite CCB.xlsx') as writer:
     results_df.to_excel(writer, index=False, sheet_name='Sobol Indices')
